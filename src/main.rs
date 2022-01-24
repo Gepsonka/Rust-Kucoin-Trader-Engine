@@ -1,6 +1,6 @@
-mod auth;
+
 mod trade;
-mod ws;
+
 
 
 use tokio::spawn;
@@ -11,51 +11,29 @@ use futures_util::StreamExt;
 use futures_util::SinkExt;
 use futures_util::sink::Send;
 use futures_util::TryFutureExt;
-
-
+use crate::trade::subscribe_to_stream;
 
 
 #[tokio::main]
 async fn main ()  {
-    let tok=auth::aquire_ws_token().await.unwrap();
 
-    let mut url_string="".to_owned();
-    url_string.push_str(tok.endpoint.as_str());
-    url_string.push_str("?token=");
-    url_string.push_str(tok.token.as_str());
-
-    let uri:Url=Url::parse(url_string.as_str()).unwrap();
-
-    let (ws_stream,_)=connect_async(uri)
-        .await
-        .expect("Failed to connect");
+    let j=trade::reload_lisings().await.unwrap();
+    println!("{:?} {:?}",j[0].token,j[0].listing_date);
 
 
-    let (mut ws_write,mut ws_read)=ws_stream.split();
-
-    ws_write.send(Message::Text(r#"
-        {
-            "id": 1545910660739,
-            "type": "subscribe",
-            "topic": "/market/ticker:BTC-USDT",
-            "response": true
-        }
-    "#.into())).await.unwrap();
-
-    ws_write.send(Message::Text(r#"
-        {
-            "id": 1545910660739,
-            "type": "subscribe",
-            "topic": "/market/ticker:ETH-ECS",
-            "response": true
-        }
-    "#.into())).await.unwrap();
+    // let mut conn=trade::connect_to_websocket().await;
+    //
+    // let mut subscribes:Vec<trade::SubscribeStream>=Vec::new();
+    //
+    // subscribe_to_stream(&mut conn.ws_write,"ETH-USDT",1,&mut subscribes).await;
 
 
-    loop {
-        let data=ws_read.next().await.expect("Stream is empty").unwrap();
-        println!("{:?}",data);
-    }
+
+
+    // loop {
+    //     let data=conn.ws_read.next().await.expect("Stream is empty").unwrap();
+    //     println!("{:?}",data);
+    // }
 
 
 

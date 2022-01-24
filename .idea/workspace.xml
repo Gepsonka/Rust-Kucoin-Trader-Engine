@@ -8,14 +8,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11071f7d-d791-44f5-9066-c508abe4800a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/auth.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/trade.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ws.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Rust-Kucoin-Trader-Engine.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Rust-Kucoin-Trader-Engine.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libtrade/src/trading.rs" beforeDir="false" afterPath="$PROJECT_DIR$/libtrade/src/trading.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/listing.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libtrade/src/trading.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/auth.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/trade.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/trade.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ws.rs" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,6 +87,8 @@
       <workItem from="1642864471913" duration="2106000" />
       <workItem from="1642866967571" duration="10870000" />
       <workItem from="1642889891771" duration="6044000" />
+      <workItem from="1642960917101" duration="9145000" />
+      <workItem from="1643026974653" duration="3707000" />
     </task>
     <servers />
   </component>
