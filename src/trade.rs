@@ -13,7 +13,16 @@ use futures_util::stream::{SplitSink, SplitStream};
 use futures_util::TryFutureExt;
 use tokio::net::TcpStream;
 use Vec;
+use reqwest;
 use json::parse;
+use std::path::Path;
+use crate::config;
+use chrono;
+use ring::{hmac, rand};
+use ring::rand::SecureRandom;
+use ring::error::Unspecified;
+use ring::hmac::HMAC_SHA256;
+use tungstenite::http::header::InvalidHeaderValue;
 
 
 #[derive(Deserialize, Serialize,Debug)]
@@ -92,7 +101,7 @@ pub async fn connect_to_websocket() -> WSStream {
     WSStream{ws_write:ws_write, ws_read:ws_read}
 }
 
-// struct to note with trades are active
+// struct to track which trades are active
 pub struct SubscribeStream{
     id:u8,
     coin_pair:String
@@ -109,6 +118,7 @@ pub async fn read_websocket_loop(websocket:&mut WSStream, sub_vec:&mut Vec<Subsc
 
 
 pub async fn subscribe_to_stream(write_stream:&mut SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>,Message>,token_pair:&str,id:u8,sub_vec:&mut Vec<SubscribeStream>){
+    // subscribing to a trading stream
     write_stream.send(Message::Text(r#"
         {
             "id": 1000000000000,
@@ -117,9 +127,11 @@ pub async fn subscribe_to_stream(write_stream:&mut SplitSink<WebSocketStream<May
             "response": true
         }
     "#.into())).await.unwrap();
-
-
 }
+
+// pub async fn buy_market_order() -> Result<(),()>{
+//
+// }
 
 #[derive(Deserialize, Serialize,Debug)]
 pub struct Listing{
@@ -133,10 +145,98 @@ pub struct Listings{
 
 }
 
-pub async fn reload_lisings() -> Result<Vec<Listing>,std::io::Error>{
-    let s=tokio::fs::read_to_string("C:\\Users\\expel\\Documents\\GitHub\\Rust-Kucoin-Trader-Engine").await.unwrap();
+pub async fn reload_lisings(config: &config::Config) -> Result<Vec<Listing>,std::io::Error>{
+    // refreshing the listing file
+    let path = if config.test{
+        "./listings_test.json"
+    } else {
+        "./listings.json"
+    };
+    let s=tokio::fs::read_to_string(path).await.unwrap();
     let parsed_json:Vec<Listing>=serde_json::from_str(s.as_str()).unwrap();
     Ok(parsed_json)
 
 }
 
+
+
+#[derive(Debug,Clone)]
+pub struct Kucoin{
+    api_key: String,
+    api_secret: String,
+    passphrase: String,
+    client: reqwest::Client,
+    base_url: String
+
+}
+
+// Account balance serde scheme
+#[derive(Debug,Deserialize,Serialize)]
+pub struct AccountBalanceResponse{
+    pub code:String,
+    pub data:Vec<Asset>
+}
+
+#[derive(Debug,Deserialize,Serialize)]
+pub struct Asset{
+    pub id:String,
+    pub currency:String,
+    #[serde(rename="type")]
+    pub typ:String,
+    pub balance:String,
+    pub available:String,
+    pub holds:String
+}
+// till here
+
+impl Kucoin{
+    pub fn new(api_key: String, api_secret: String, passphrase: String, base_url: String) -> Kucoin {
+        Kucoin{api_key, api_secret, passphrase, client: reqwest::Client::new(), base_url}
+    }
+
+    fn create_headers(&self,endpoint: &str, method: &str) -> Result<reqwest::header::HeaderMap,InvalidHeaderValue> {
+        // Creating the headers for requests.
+        let utc=chrono::Utc::now();
+        let str_to_sign=utc.timestamp_millis().to_string()+method+endpoint;
+
+        let key=hmac::Key::new(hmac::HMAC_SHA256,self.api_secret.as_bytes());
+        let mut signature=hmac::sign(&key,str_to_sign.as_bytes());
+        let encoded_signature=base64::encode(signature.as_ref());
+
+        let key2=hmac::Key::new(hmac::HMAC_SHA256,self.api_secret.as_bytes());
+        let mut signature_passphrase=hmac::sign(&key2,self.passphrase.as_bytes());
+        let encoded_passphrase=base64::encode(signature_passphrase.as_ref());
+
+        let mut heads=reqwest::header::HeaderMap::new();
+        heads.insert(reqwest::header::HeaderName::from_static("kc-api-sign"),reqwest::header::HeaderValue::from_bytes(encoded_signature.as_bytes()).unwrap());
+        heads.insert(reqwest::header::HeaderName::from_static("kc-api-timestamp"),reqwest::header::HeaderValue::from(utc.timestamp_millis()));
+        heads.insert(reqwest::header::HeaderName::from_static("kc-api-key"),reqwest::header::HeaderValue::from_str(self.api_key.as_str()).unwrap());
+        heads.insert(reqwest::header::HeaderName::from_static("kc-api-passphrase"),reqwest::header::HeaderValue::from_bytes(encoded_passphrase.as_bytes()).unwrap());
+        heads.insert(reqwest::header::HeaderName::from_static("kc-api-key-version"),reqwest::header::HeaderValue::from_str("2").unwrap());
+
+        Ok(heads)
+    }
+
+    pub async fn account_usdt_balance(&self) -> Result<AccountBalanceResponse,reqwest::Error>{
+        // Get the spot wallet's usdt balance
+        let cpy=self.clone();
+        let headers=cpy.create_headers("/api/v1/accounts","GET",).unwrap();
+        let endpoint=cpy.base_url.as_str().clone();
+
+        let resp=self.client
+            .get(endpoint.to_owned()+"/api/v1/accounts")
+            .headers(headers)
+            .send()
+            .await?
+            .text().await?;
+
+        let resp_json:AccountBalanceResponse=serde_json::from_str(resp.as_str()).unwrap();
+        Ok(resp_json)
+
+    }
+
+    pub async fn create_market_order_buy() -> Result<> {
+
+    }
+
+}
