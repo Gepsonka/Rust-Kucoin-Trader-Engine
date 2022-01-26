@@ -166,7 +166,10 @@ pub struct Kucoin{
     api_secret: String,
     passphrase: String,
     client: reqwest::Client,
-    base_url: String
+    base_url: String,
+    passphrase_signature:String,
+    trade_signature:String,
+    balance_signature:String
 
 }
 
@@ -185,42 +188,103 @@ pub struct Asset{
     pub typ:String,
     pub balance:String,
     pub available:String,
-    pub holds:String
+    pub holds:String,
+
 }
 // till here
 
+
+enum TradeType{
+    Trade,
+    Balance
+}
+
+
 impl Kucoin{
     pub fn new(api_key: String, api_secret: String, passphrase: String, base_url: String) -> Kucoin {
-        Kucoin{api_key, api_secret, passphrase, client: reqwest::Client::new(), base_url}
+        let encoded_passphrase=Kucoin::generate_encrypted_passphrase(&api_secret, &passphrase);
+        let (encoded_trade_sign,encoded_balance_sign)=Kucoin::generate_endpoint_signatures(&api_secret);
+        Kucoin{
+            api_key:api_key.to_owned(),
+            api_secret:api_secret.to_string(),
+            passphrase:passphrase.to_owned(),
+            client: reqwest::Client::new(),
+            base_url:base_url.to_owned(),
+            passphrase_signature: encoded_passphrase.to_owned(),
+            trade_signature: encoded_trade_sign.to_owned(),
+            balance_signature: encoded_balance_sign.to_owned()
+        }
     }
 
-    fn create_headers(&self,endpoint: &str, method: &str) -> Result<reqwest::header::HeaderMap,InvalidHeaderValue> {
+    fn generate_encrypted_passphrase(api_secret: &String, passphrase: &String) -> String {
+        /*Same purpose as the generate_endpoint_signatures fn but with the passphrase*/
+
+        let passphrase_key=hmac::Key::new(hmac::HMAC_SHA256,api_secret.as_bytes());
+        let mut signature_passphrase=hmac::sign(&passphrase_key,passphrase.as_bytes());
+        println!("{:?}", signature_passphrase.to_owned());
+        let encoded_passphrase=base64::encode(signature_passphrase.to_owned());
+
+        encoded_passphrase
+
+    }
+
+    fn generate_endpoint_signatures(api_secret:&String) -> (String,String) {
+        /* For every request we make through the kucoin api we need to encrypt the credentials in relation
+        to the url we want to sen it, to save time (we do not want to encrypt before every request)
+        I preeencrypt the credentials which will be used in the future, this way we save time before every
+        request. Everything will be calculated as soon as a new Kucoin instance creation (Kucoin::new) is reuested */
+        /*See more at https://docs.kucoin.com/#authentication */
+
+        // api_key used to generate both hmac signatures
+        let api_key_hmac_key=hmac::Key::new(hmac::HMAC_SHA256,api_secret.as_bytes());
+
+        // Need timestamp in millis for encryption
+        let utc=chrono::Utc::now();
+
+        // create signature for trade enpoints
+        let trade_str_to_sign=utc.timestamp_millis().to_string()+"GET"+"/api/v1/orders";
+        let trade_signature=hmac::sign(&api_key_hmac_key, trade_str_to_sign.as_bytes());
+        let base64_trade_encoded_signature=base64::encode(trade_signature.to_owned());
+
+        // create signature for balance endpoint
+        let balance_str_to_sign=utc.timestamp_millis().to_string()+"GET"+"/api/v1/accounts";
+        let balance_signature=hmac::sign(&api_key_hmac_key, balance_str_to_sign.as_bytes());
+        let base64_balance_encoded_signature=base64::encode(balance_signature.to_owned());
+
+        (base64_trade_encoded_signature,base64_balance_encoded_signature)
+
+    }
+
+    fn create_headers(&self, trade_type: TradeType) -> Result<reqwest::header::HeaderMap,InvalidHeaderValue> {
+        /*Since every kucoin api request which requires which requires authentication needs credentials,
+        and need those credentials
+        must be sent as header key-value pairs, we need to create HeaderMap instance and fill it up
+        with the required data, then attach this ti the request*/
+
         // Creating the headers for requests.
         let utc=chrono::Utc::now();
-        let str_to_sign=utc.timestamp_millis().to_string()+method+endpoint;
-
-        let key=hmac::Key::new(hmac::HMAC_SHA256,self.api_secret.as_bytes());
-        let mut signature=hmac::sign(&key,str_to_sign.as_bytes());
-        let encoded_signature=base64::encode(signature.as_ref());
-
-        let key2=hmac::Key::new(hmac::HMAC_SHA256,self.api_secret.as_bytes());
-        let mut signature_passphrase=hmac::sign(&key2,self.passphrase.as_bytes());
-        let encoded_passphrase=base64::encode(signature_passphrase.as_ref());
 
         let mut heads=reqwest::header::HeaderMap::new();
-        heads.insert(reqwest::header::HeaderName::from_static("kc-api-sign"),reqwest::header::HeaderValue::from_bytes(encoded_signature.as_bytes()).unwrap());
+
+        // filling up the header fields
+        if let TradeType::Trade = trade_type {
+            heads.insert(reqwest::header::HeaderName::from_static("kc-api-sign"),reqwest::header::HeaderValue::from_bytes(self.trade_signature.as_bytes()).unwrap());
+        } else if let TradeType::Balance = trade_type {
+            heads.insert(reqwest::header::HeaderName::from_static("kc-api-sign"),reqwest::header::HeaderValue::from_bytes(self.balance_signature.as_bytes()).unwrap());
+        }
+
         heads.insert(reqwest::header::HeaderName::from_static("kc-api-timestamp"),reqwest::header::HeaderValue::from(utc.timestamp_millis()));
         heads.insert(reqwest::header::HeaderName::from_static("kc-api-key"),reqwest::header::HeaderValue::from_str(self.api_key.as_str()).unwrap());
-        heads.insert(reqwest::header::HeaderName::from_static("kc-api-passphrase"),reqwest::header::HeaderValue::from_bytes(encoded_passphrase.as_bytes()).unwrap());
+        heads.insert(reqwest::header::HeaderName::from_static("kc-api-passphrase"),reqwest::header::HeaderValue::from_bytes(self.passphrase_signature.as_bytes()).unwrap());
         heads.insert(reqwest::header::HeaderName::from_static("kc-api-key-version"),reqwest::header::HeaderValue::from_str("2").unwrap());
 
         Ok(heads)
     }
 
-    pub async fn account_usdt_balance(&self) -> Result<AccountBalanceResponse,reqwest::Error>{
+    pub async fn account_usdt_balance(&self) -> Result<String,reqwest::Error>{
         // Get the spot wallet's usdt balance
         let cpy=self.clone();
-        let headers=cpy.create_headers("/api/v1/accounts","GET",).unwrap();
+        let headers=cpy.create_headers(TradeType::Balance).unwrap();
         let endpoint=cpy.base_url.as_str().clone();
 
         let resp=self.client
@@ -230,13 +294,13 @@ impl Kucoin{
             .await?
             .text().await?;
 
-        let resp_json:AccountBalanceResponse=serde_json::from_str(resp.as_str()).unwrap();
-        Ok(resp_json)
+        //let resp_json:AccountBalanceResponse=serde_json::from_str(resp.as_str()).unwrap();
+        Ok(resp)
 
     }
 
-    pub async fn create_market_order_buy() -> Result<> {
-
-    }
+    // pub async fn create_market_order_buy() -> Result<> {
+    //
+    // }
 
 }

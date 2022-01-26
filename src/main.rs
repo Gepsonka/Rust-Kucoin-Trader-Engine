@@ -36,7 +36,8 @@ struct Signature{
 async fn main ()  {
     let conf=config::parse_config().await.unwrap();
 
-    let kucoin_client=trade::Kucoin::new(conf.kucoin_key,conf.kucoin_secret,conf.kucoin_passphrase,conf.base_endpoint);
+
+    let kucoin_client=trade::Kucoin::new(conf.kucoin_key,conf.kucoin_secret,conf.kucoin_passphrase,conf.base_url);
     let r=kucoin_client.account_usdt_balance().await.unwrap();
     println!("{:?}",r);
     // let utc=chrono::Utc::now();
