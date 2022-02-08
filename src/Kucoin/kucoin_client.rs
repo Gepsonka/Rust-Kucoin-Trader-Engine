@@ -20,6 +20,7 @@ use json::parse;
 use std::path::Path;
 use crate::Kucoin::config;
 use chrono;
+use digest::generic_array::typenum::Or;
 use ring::{hmac, rand};
 use ring::rand::SecureRandom;
 use ring::error::Unspecified;
@@ -303,6 +304,16 @@ impl Kucoin{
         };
 
         // finish function
+        let json_body=serde_json::to_string(&limit_order_json).unwrap();
+        let headers=self.create_headers(TradeType::Trade(OrderType::Buy),&json_body).expect("Could not extract the headers.");
+
+        let resp=self.client.post(url)
+            .json(&json_body)
+            .headers(headers)
+            .send()
+            .await
+            .unwrap();
+
     }
 
 }

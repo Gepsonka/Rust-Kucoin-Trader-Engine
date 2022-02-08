@@ -14,9 +14,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11071f7d-d791-44f5-9066-c508abe4800a" name="Changes" comment="Market orders">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Rust-Kucoin-Trader-Engine.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Rust-Kucoin-Trader-Engine.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Kucoin/kucoin_client.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Kucoin/kucoin_client.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +32,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MacroExpansionManager">
@@ -124,7 +127,7 @@
       <workItem from="1644185274033" duration="5357000" />
       <workItem from="1644237648961" duration="3647000" />
       <workItem from="1644270605508" duration="3381000" />
-      <workItem from="1644357816470" duration="967000" />
+      <workItem from="1644357816470" duration="2507000" />
     </task>
     <task id="LOCAL-00001" summary="Market orders">
       <created>1644190963618</created>
@@ -151,7 +154,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="LimitOrder" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
