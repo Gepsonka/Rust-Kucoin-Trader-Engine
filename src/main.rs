@@ -1,9 +1,6 @@
 mod Kucoin;
 
 
-
-
-
 #[tokio::main]
 async fn main ()  {
     let conf=Kucoin::config::Config::new();
@@ -11,8 +8,16 @@ async fn main ()  {
     kucoin_client.refresh_account_balance().await;
     println!("{:?}",kucoin_client.wallet);
 
-    let buy_result=kucoin_client.create_market_order("ADA".to_string(),Kucoin::kucoin_client::OrderType::Sell, "", "12.99").await.unwrap();
-    println!("{:?}",buy_result);
+    let buy_result=kucoin_client.create_market_order("ADA".to_string(),Kucoin::kucoin_client::OrderType::Buy, "", "1000").await;
+    match buy_result {
+        Ok(ok) => {
+            println!("Successful trade: {:?}", ok);
+        }
+        Err(ref e) => {
+            println!("Error: {:?}",e);
+        }
+    }
+
 
 
     // let mut sub_vec:Vec<Kucoin::websocket::SubscribeStream>=Vec::new();

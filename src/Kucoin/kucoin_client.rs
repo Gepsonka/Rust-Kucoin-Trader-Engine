@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::io::Read;
 use std::ops::Sub;
 use serde::{Deserialize, Serialize};
@@ -81,6 +82,12 @@ pub struct MarketOrderParams{
 }
 
 #[derive(Clone,Debug,Deserialize,Serialize)]
+pub struct MarketOrderResponseSuccess{
+    code: String,
+    data: HashMap<String,String>
+}
+
+#[derive(Clone,Debug,Deserialize,Serialize)]
 pub struct LimitOrderParams{
     #[serde(rename="clientOid")]
     pub client_oid: String,
@@ -90,12 +97,21 @@ pub struct LimitOrderParams{
     pub typ: String,
     #[serde(rename="tradeType")]
     pub trade_type: String,
-    pub price: String,
-    pub size: String,
+    pub price: f32,
+    pub size: f32,
     #[serde(rename="timeInForce")]
-    pub time_in_force: String,
+    pub time_in_force: Option<String>,
     #[serde(rename="cancelAfter")]
-    pub cancel_after: u32, // cancel the order after this amount of seconds
+    pub cancel_after: Option<u32>, // cancel the order after this amount of seconds
+    #[serde(rename="postOnly")]
+    post_only: Option<bool>,
+
+
+}
+
+#[derive(Clone,Debug,Deserialize,Serialize)]
+pub struct LimitOrderResponseSuccess{
+    a:String
 
 }
 
@@ -207,7 +223,7 @@ impl Kucoin{
         self.wallet=self.fetch_account_balance().await;
     }
 
-    pub async fn create_market_order(&self, token:String, side: OrderType, size: &str, funds: &str) -> Result<String,reqwest::Error>{
+    pub async fn create_market_order(&self, token:String, side: OrderType, size: &str, funds: &str) -> Result<MarketOrderResponseSuccess,ErrorResponse>{
         if (size=="" && funds=="") || (size!="" && funds!=""){
             panic!("It is required that you use one of the two parameters, size or funds.");
         }
@@ -225,10 +241,11 @@ impl Kucoin{
             }
         };
 
+        // creating the json body
         let market_order_json=MarketOrderParams{
             client_oid:uid.to_string(),
             side:order_side.to_string(),
-            symbol:token.to_owned()+"-USDT",
+            symbol:token+"-USDT",
             typ: "market".to_string(),
             trade_type: "TRADE".to_string(),
             funds: funds.to_string(),
@@ -243,18 +260,47 @@ impl Kucoin{
             .json(&market_order_json)
             .headers(headers)
             .send()
-            .await?;
+            .await
+            .unwrap();
 
-        println!("Status code: {}",resp.status());
-        let resp_text=resp.text().await?;
+        let resp_text=resp.text().await.unwrap();
+        let resp_json:Result<MarketOrderResponseSuccess,serde_json::Error>=serde_json::from_str(resp_text.as_str());
 
-        // TODO: finish error handling (if msd comes back from response)
+        // if the request or the operation failed on teh server we should handle it wout panicking
+        let resp_json: Result<MarketOrderResponseSuccess, ErrorResponse>=match resp_json{
+          Ok(succ)=>{
+              Ok(succ)
+          }
+          Err(e) => {
+              let err_resp: ErrorResponse=serde_json::from_str(resp_text.as_str()).unwrap();
+              Err(err_resp)
+          }
+        };
 
-        Ok(resp_text)
+        resp_json
     }
 
-    // pub async fn create_limit_order(&mut self, token:String, side:OrderType, price:f32, size:f32) -> Result<>{
-    //
-    // }
+    pub async fn create_limit_order(&self, token:String, side:OrderType, price:f32, size:f32, cancel_after:Option<u32>, post_only:Option<bool>, hidden:Option<bool>, iceberg:Option<bool>, visible_size:Option<String> ) -> Result<LimitOrderResponseSuccess,ErrorResponse>{
+        let url=self.base_url.to_string()+"/api/v1/orders";
+        let uid=Uuid::new_v4();
+
+        let order_side=match side {
+            OrderType::Buy => "buy",
+            OrderType::Sell => "sell"
+        };
+
+        let limit_order_json=LimitOrderParams{
+            client_oid: uid.to_string(),
+            side: order_side.to_string(),
+            symbol: token+"-USDT",
+            typ: "limit".to_string(),
+            trade_type: "TRADE".to_string(),
+            price: price,
+            size: size,
+            time_in_force:Some("GTT".to_string()),
+            cancel_after: cancel_after,
+            post_only: post_only
+        };
+    }
 
 }
