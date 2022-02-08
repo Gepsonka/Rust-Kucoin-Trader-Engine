@@ -301,6 +301,8 @@ impl Kucoin{
             cancel_after: cancel_after,
             post_only: post_only
         };
+
+        // finish function
     }
 
 }

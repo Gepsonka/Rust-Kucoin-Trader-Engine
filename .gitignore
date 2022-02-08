@@ -15,3 +15,10 @@ cred.json
 # Added by cargo
 
 /target
+
+.vscode
+.idea
+
+config.json
+.idea/Rust-Kucoin-Trader-Engine.iml
+.idea/workspace.xml

@@ -3,21 +3,28 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
   <component name="CargoProjects">
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
+    <cargoProject FILE="$PROJECT_DIR$/src/KucoinClient/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="11071f7d-d791-44f5-9066-c508abe4800a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/listings_test.json" afterDir="false" />
+    <list default="true" id="11071f7d-d791-44f5-9066-c508abe4800a" name="Changes" comment="Market orders">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Rust-Kucoin-Trader-Engine.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Rust-Kucoin-Trader-Engine.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/trade.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/trade.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -41,9 +48,13 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="RunOnceActivity.cidr.known.project.marker" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="cf.first.check.clang-format" value="false" />
+    <property name="cidr.known.project.marker" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
@@ -52,7 +63,7 @@
     <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
     <property name="org.rust.disableDetachedFileInspection/home/gepsonka/Documents/GitHub/Rust-Kucoin-Trader-Engine/src/config.rs" value="true" />
     <property name="org.rust.disableDetachedFileInspectionC:/Users/expel/Documents/GitHub/Rust-Kucoin-Trader-Engine/src/libtrade/Connect.rs" value="true" />
-    <property name="settings.editor.selected.configurable" value="language.rust.cargo.check" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RunManager">
@@ -95,7 +106,41 @@
       <workItem from="1643064452774" duration="10048000" />
       <workItem from="1643113248799" duration="4794000" />
       <workItem from="1643120460334" duration="19133000" />
+      <workItem from="1643308361930" duration="168000" />
+      <workItem from="1643308541067" duration="89000" />
+      <workItem from="1643308641950" duration="3167000" />
+      <workItem from="1643369023056" duration="1000" />
+      <workItem from="1643413567708" duration="2772000" />
+      <workItem from="1643660685744" duration="2185000" />
+      <workItem from="1643756459705" duration="748000" />
+      <workItem from="1643830373820" duration="519000" />
+      <workItem from="1643838006899" duration="5184000" />
+      <workItem from="1643917141909" duration="8599000" />
+      <workItem from="1644004819506" duration="8484000" />
+      <workItem from="1644064361714" duration="5389000" />
+      <workItem from="1644087502076" duration="306000" />
+      <workItem from="1644106109424" duration="2515000" />
+      <workItem from="1644146565126" duration="8444000" />
+      <workItem from="1644185274033" duration="5357000" />
+      <workItem from="1644237648961" duration="3647000" />
+      <workItem from="1644270605508" duration="3381000" />
+      <workItem from="1644357816470" duration="967000" />
     </task>
+    <task id="LOCAL-00001" summary="Market orders">
+      <created>1644190963618</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1644190963619</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Market orders">
+      <created>1644357896502</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1644357896502</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -111,5 +156,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Market orders" />
+    <option name="LAST_COMMIT_MESSAGE" value="Market orders" />
   </component>
 </project>
