@@ -104,8 +104,6 @@ pub struct LimitOrderParams{
     pub time_in_force: Option<String>,
     #[serde(rename="cancelAfter")]
     pub cancel_after: Option<u32>, // cancel the order after this amount of seconds
-    #[serde(rename="postOnly")]
-    post_only: Option<bool>,
 
 
 }
@@ -281,7 +279,7 @@ impl Kucoin{
         resp_json
     }
 
-    pub async fn create_limit_order(&self, token:String, side:OrderType, price:f32, size:f32, cancel_after:Option<u32>, post_only:Option<bool>, hidden:Option<bool>, iceberg:Option<bool>, visible_size:Option<String> ) -> Result<LimitOrderResponseSuccess,ErrorResponse>{
+    pub async fn create_limit_order(&self, token:String, side:OrderType, price:f32, size:f32, cancel_after:Option<u32>) -> Result<String,reqwest::Error>{
         let url=self.base_url.to_string()+"/api/v1/orders";
         let uid=Uuid::new_v4();
 
@@ -300,20 +298,25 @@ impl Kucoin{
             size: size,
             time_in_force:Some("GTT".to_string()),
             cancel_after: cancel_after,
-            post_only: post_only
         };
 
         // finish function
         let json_body=serde_json::to_string(&limit_order_json).unwrap();
-        let headers=self.create_headers(TradeType::Trade(OrderType::Buy),&json_body).expect("Could not extract the headers.");
+        println!("{:?}", json_body);
+        let headers=self.create_headers(TradeType::Trade(OrderType::Buy),json_body.as_str()).expect("Could not extract the headers.");
 
         let resp=self.client.post(url)
-            .json(&json_body)
+            .json(&limit_order_json)
             .headers(headers)
             .send()
             .await
+            .unwrap()
+            .text().await
             .unwrap();
-
+        // FIXME: fix the order making (do not let accept invalid valuse for price and size)
+        Ok(resp)
     }
+
+
 
 }
