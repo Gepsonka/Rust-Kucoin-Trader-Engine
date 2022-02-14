@@ -16,7 +16,7 @@ use futures_util::TryFutureExt;
 use tokio::net::TcpStream;
 use Vec;
 use reqwest;
-use json::parse;
+use json::{Error, parse};
 use std::path::Path;
 use crate::Kucoin::config;
 use chrono;
@@ -105,13 +105,12 @@ pub struct LimitOrderParams{
     #[serde(rename="cancelAfter")]
     pub cancel_after: Option<u32>, // cancel the order after this amount of seconds
 
-
 }
 
 #[derive(Clone,Debug,Deserialize,Serialize)]
 pub struct LimitOrderResponseSuccess{
-    a:String
-
+    code: String,
+    data: HashMap<String,String>
 }
 
 
@@ -279,7 +278,7 @@ impl Kucoin{
         resp_json
     }
 
-    pub async fn create_limit_order(&self, token:String, side:OrderType, price:f32, size:f32, cancel_after:Option<u32>) -> Result<String,reqwest::Error>{
+    pub async fn create_limit_order(&self, token:String, side:OrderType, price:f32, size:f32, cancel_after:Option<u32>) -> Result<LimitOrderResponseSuccess,ErrorResponse>{
         let url=self.base_url.to_string()+"/api/v1/orders";
         let uid=Uuid::new_v4();
 
@@ -314,7 +313,18 @@ impl Kucoin{
             .text().await
             .unwrap();
         // FIXME: fix the order making (do not let accept invalid valuse for price and size)
-        Ok(resp)
+
+        let resp_json:Result<LimitOrderResponseSuccess,serde_json::Error>=serde_json::from_str(resp.as_str());
+
+        let resp_json:Result<LimitOrderResponseSuccess,ErrorResponse> = match resp_json {
+            Ok(succ) => Ok(succ),
+            Err(e) => {
+                let err_resp: ErrorResponse = serde_json::from_str(resp.as_str()).unwrap();
+                Err(err_resp)
+            }
+        };
+
+        resp_json
     }
 
 

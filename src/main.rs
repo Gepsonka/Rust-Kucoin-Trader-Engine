@@ -8,7 +8,7 @@ async fn main ()  {
     kucoin_client.refresh_account_balance().await;
     println!("{:?}",kucoin_client.wallet);
 
-    let buy_result=kucoin_client.create_limit_order("ADA".to_string(),Kucoin::kucoin_client::OrderType::Buy, 30000.0, 0.000004, Some(60)).await;
+    let buy_result=kucoin_client.create_limit_order("ADA".to_string(),Kucoin::kucoin_client::OrderType::Buy, 1.0, 12.0, Some(60)).await;
     match buy_result {
         Ok(ok) => {
             println!("Successful trade: {:?}", ok);
