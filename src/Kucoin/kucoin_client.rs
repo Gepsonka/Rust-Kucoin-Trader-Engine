@@ -312,7 +312,6 @@ impl Kucoin{
             .unwrap()
             .text().await
             .unwrap();
-        // FIXME: fix the order making (do not let accept invalid valuse for price and size)
 
         let resp_json:Result<LimitOrderResponseSuccess,serde_json::Error>=serde_json::from_str(resp.as_str());
 
@@ -326,7 +325,5 @@ impl Kucoin{
 
         resp_json
     }
-
-
 
 }
