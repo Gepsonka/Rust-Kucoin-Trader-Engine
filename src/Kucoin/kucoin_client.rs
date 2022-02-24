@@ -1,28 +1,10 @@
-use std::io::Read;
-use std::ops::Sub;
+
 use serde::{Deserialize, Serialize};
-use serde_json::json;
-use url::Url;
-use tokio_tungstenite;
-use tokio_tungstenite::{connect_async, MaybeTlsStream, WebSocketStream};
-use tokio::spawn;
-use tungstenite::{connect,Message};
-use futures_util::StreamExt;
-use futures_util::SinkExt;
-use futures_util::sink::Send;
-use futures_util::stream::{SplitSink, SplitStream};
-use futures_util::TryFutureExt;
-use tokio::net::TcpStream;
 use Vec;
 use reqwest;
-use json::parse;
-use std::path::Path;
 use crate::Kucoin::config;
 use chrono;
 use ring::{hmac, rand};
-use ring::rand::SecureRandom;
-use ring::error::Unspecified;
-use ring::hmac::{HMAC_SHA256, sign};
 use tungstenite::http::header::InvalidHeaderValue;
 use uuid::Uuid;
 

@@ -9,7 +9,7 @@ edition = "2021"
 json = "0.12.4"
 tungstenite = {version = "0.16.0", features = ["native-tls"]}
 tokio-tungstenite = {version="0.16.1",features=["native-tls"]}
-tokio = {varsion="1.15.0",features = ["full"]}
+tokio = {version="1.15.0",features = ["full"]}
 reqwest = {version="0.11.9",features=["json"]}
 url = "2.2.2"
 serde =  { version = "1.0.134", features = ["derive"] }

@@ -1,6 +1,6 @@
+use std::string::String;
+
 mod Kucoin;
-
-
 
 
 
@@ -8,11 +8,19 @@ mod Kucoin;
 async fn main ()  {
     let conf=Kucoin::config::Config::new();
     let mut kucoin_client=Kucoin::kucoin_client::Kucoin::new(&conf).await;
-    kucoin_client.refresh_account_balance().await;
-    println!("{:?}",kucoin_client.wallet);
+    let mut orders: Vec<String>=Vec::new();
 
-    let buy_result=kucoin_client.create_market_order("ADA".to_string(),Kucoin::kucoin_client::OrderType::Sell, "", "12.99").await.unwrap();
-    println!("{:?}",buy_result);
+
+    let mut watcher=Kucoin::watcher::Watcher::new(true).await.unwrap();
+    loop {
+        watcher.check_listing_and_execute_order(&mut kucoin_client,&mut orders)
+    }
+
+    // kucoin_client.refresh_account_balance().await;
+    // println!("{:?}",kucoin_client.wallet);
+    //
+    // let buy_result=kucoin_client.create_market_order("ADA".to_string(),Kucoin::kucoin_client::OrderType::Sell, "", "12.99").await.unwrap();
+    // println!("{:?}",buy_result);
 
 
     // let mut sub_vec:Vec<Kucoin::websocket::SubscribeStream>=Vec::new();

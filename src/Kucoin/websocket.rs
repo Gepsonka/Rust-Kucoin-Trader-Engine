@@ -131,32 +131,4 @@ impl WSStream {
     }
 }
 
-
-mod listings {
-    use serde::{Deserialize,Serialize};
-
-    #[derive(Deserialize, Serialize,Debug)]
-    pub struct Listing{
-        pub listing_date:String,
-        pub token:String
-    }
-
-    #[derive(Deserialize, Serialize,Debug)]
-    pub struct Listings{
-        pub listings:Vec<Listing>
-
-    }
-
-    pub async fn reload_lisings() -> Vec<Listing>{
-        // refreshing the listing file
-        let path = "./listings.json";
-        let s=tokio::fs::read_to_string(path).await.expect("Could not read listing file (listing.json).");
-
-
-        let parsed_json:Vec<Listing>=serde_json::from_str(s.as_str()).expect("Error occurred during serializing the listings.");
-
-        parsed_json
-
-    }
-}
     
